@@ -8,11 +8,6 @@ double autocovariance(double H, int k){
                   pow(abs(k + 1), (2 * H))));
 }
 
-double covariance(long i, double H) {
-  if (i == 0) return 1;
-  else return (pow(i-1,2*H)-2*pow(i,2*H)+pow(i+1,2*H))/2;
-}
-
 double drand(){
   return (rand()+1.0)/(RAND_MAX+1.0);
 }
@@ -26,7 +21,6 @@ double randomNormal(){
 int dft(long int length, double realSample[], double *Rk, double *Ik, long int limit){
     long int i, j;
     double arg;
-    double cosarg, sinarg;
     double *tempReal = NULL;
     double *tempIm = NULL;
     double PI2 = 6.283184;
@@ -48,6 +42,7 @@ int dft(long int length, double realSample[], double *Rk, double *Ik, long int l
             tempReal[i] += (realSample[j] * (cos(j * arg)) - imaginaryPart * (sin(j * arg)));
             tempIm[i] += (realSample[j] * (sin(j * arg)) + imaginaryPart * (cos(j * arg)));
         }
+
     }
 
     // If we need just the first X values
@@ -63,16 +58,11 @@ int dft(long int length, double realSample[], double *Rk, double *Ik, long int l
 
 
 int main(){
-    double H = 0.05; // Desired hurst value
+    double H = 0.25; // Desired hurst value
     int N = pow(2,10); // Number of elements
     double L = 1.0; // Lenght of realization
 
-    double increment = pow(increment, H);
     double scale = L / N;
-
-    double mu = 0.0; // Parameter for the normal gaussian distribution
-    double sigma = 1.0; // Parameter for the normal gaussian distribution
-    double rnd = 0.0; // Pseudo-random value
 
     double *fgn;
     double *fgn2;
@@ -128,14 +118,13 @@ int main(){
 
     printf("Computing a normal distribution...\n");
     for(i=0; i<N; i++){
-        rnd = (double)rand() / (double)RAND_MAX ;
-        fgn[i] = 0.0 + 1.0*randomNormal();
+        fgn[i] = 0.0 + 1.0 * randomNormal();
     }
 
     if(H == 0.5){
         printf("Normal distribution has a H of 0.5, returning it...\n");
         printf("Writing to file...\n");
-        for(i=0; i<N; i++){;
+        for(i=0; i<N; i++){
             fprintf(FP, "%lf\n", fgn[i]);
         }
     }
@@ -162,7 +151,6 @@ int main(){
         dft(N*2, row, outreal, outimag, N*2);
 
         for(i=0; i<N*2; i++){
-            rnd = (double)rand() / (double)RAND_MAX;
             fgn2[i] = 0.0 + 1.0 * randomNormal();
         }
 
@@ -190,7 +178,7 @@ int main(){
         if(flag == 1){
             dft(N*2, w, outreal, outimag, N*2);
 
-            printf("Writing to file...\n", H, N);
+            printf("Writing to file...\n");
             for(i=0; i<N; i++){
                 fgn[i] = outreal[i];
                 fgn[i] *= scale;
